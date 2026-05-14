@@ -54,8 +54,6 @@ exports.main = async (event) => {
 
   const clientConfig = {
     credential: {
-      secretId: "AKIDeDoO0b7RegWAcrudAUcXFoDQSHuJWXN1",
-      secretKey: "KRQEpFKLEzZ0Lfq9OfsxuhHl4JAzoUyM",
     },
     region: "",
     profile: {
