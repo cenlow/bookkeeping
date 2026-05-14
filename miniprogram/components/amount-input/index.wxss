@@ -1,0 +1,67 @@
+.mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.dialog {
+  width: 560rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 32rpx;
+}
+
+.title {
+  font-size: 32rpx;
+  font-weight: bold;
+  margin-bottom: 24rpx;
+}
+
+.input {
+  height: 88rpx;
+  border: 1px solid #ddd;
+  border-radius: 8rpx;
+  padding: 0 20rpx;
+  font-size: 36rpx;
+}
+
+.quick {
+  display: flex;
+  gap: 16rpx;
+  margin: 24rpx 0;
+}
+
+.quick-btn {
+  flex: 1;
+  text-align: center;
+  padding: 16rpx 0;
+  border: 1px solid #07c160;
+  color: #07c160;
+  border-radius: 8rpx;
+}
+
+.btns {
+  display: flex;
+  margin-top: 24rpx;
+}
+
+.btn {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx 0;
+  border-radius: 8rpx;
+}
+
+.cancel {
+  background: #eee;
+  margin-right: 16rpx;
+}
+
+.confirm {
+  background: #07c160;
+  color: #fff;
+}

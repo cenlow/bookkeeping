@@ -1,0 +1,56 @@
+<view class="container">
+  <!-- 用户信息卡片 -->
+  <view class="user-card">
+    <view class="user-info">
+      <image class="avatar" src="{{userInfo.avatarUrl || '/images/user.png'}}" mode="aspectFill"></image>
+      <view class="user-detail">
+        <text class="nickname">{{userInfo.nickName || '未登录'}}</text>
+        <text class="uid">uid:{{userInfo.uid || '---'}}</text>
+      </view>
+    </view>
+    <button class="edit-btn" bindtap="handleLogin">{{isLogin ? '编辑信息' : '登录'}}</button>
+  </view>
+  
+  <!-- 统计信息 -->
+  <view class="stats-container">
+    <view class="stat-item">
+      <text class="stat-num">{{totalGames || 0}}</text>
+      <text class="stat-label">总场</text>
+    </view>
+    <view class="stat-item">
+      <text class="stat-num">{{winGames || 0}}</text>
+      <text class="stat-label">胜场</text>
+    </view>
+    <view class="stat-item">
+      <text class="stat-num">{{winRate || '0%'}}</text>
+      <text class="stat-label">胜率</text>
+    </view>
+  </view>
+  
+  <!-- 客服和历史记录 -->
+  <view class="action-links">
+    <view class="link-item" bindtap="contactService">
+      <image class="icon" src="/images/support.png"></image>
+      <text>客服反馈</text>
+    </view>
+    <view class="link-item" bindtap="viewHistory">
+      <text>历史记录</text>
+      <image class="icon" src="/images/file.png"></image>
+    </view>
+  </view>
+  
+  <!-- 主要功能按钮 -->
+  <view class="main-buttons">
+    <button class="action-btn create-room" style="margin-right: 10rpx;" bindtap="createRoom">创建房间</button>
+    <button class="action-btn join-room" bindtap="joinRoom">扫码加入</button>
+  </view>
+  
+  <!-- 评价提示 -->
+  <view class="feedback-tip">
+    <text>不知道如何使用？</text>
+    <text class="help-link" bindtap="showHelp">查看帮助！</text>
+  </view>
+  
+  <!-- 广告区域 -->
+  <!-- <ad unit-id="your-ad-unit-id"></ad> -->
+</view>

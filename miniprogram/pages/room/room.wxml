@@ -1,0 +1,117 @@
+<!-- 房间页面 -->
+<view class="container">
+  <!-- 用户列表（自己在前，其他人按加入顺序） -->
+  <view class="user-list">
+    <block wx:for="{{userList}}" wx:key="_id">
+      <view 
+        class="user-item {{item.openid === myOpenid ? 'self' : ''}}" 
+        bindtap="onUserTap" 
+        bindlongpress="onUserLongPress" 
+        data-nickname="{{item.nickName}}"
+        data-openid="{{item.openid}}"
+      >
+        <image src="{{item.avatarUrl || '/images/avatar_01.png'}}" class="avatar"></image>
+        <view class="nickname">{{item.remark || item.nickName}}</view>
+        <view class="score {{item.score >= 0 ? 'positive' : 'negative'}}">{{item.score}}</view>
+      </view>
+    </block>
+    <!-- 邀请按钮 -->
+    <view class="user-item invite" bindtap="inviteUser">
+      <image class="avatar" src="/images/user.png"></image>
+      <view class="nickname">邀请</view>
+    </view>
+    <!-- 茶水间按钮 -->
+    <view class="user-item tea" bindtap="openTeaRoom">
+      <image src="/images/tea.png" class="avatar"></image>
+      <view class="nickname">茶水</view>
+      <view class="tea-money">¥{{teaMoney}}</view>
+    </view>
+  </view>
+
+  <!-- 提示文字 -->
+  <view class="tip">点击头像向用户进行记账,长按头像更多功能</view>
+
+  <!-- 广告区域（可替换为实际广告组件） -->
+  <!-- <view class="ad">
+    <image src="/images/ad.jpg" mode="widthFix" class="ad-img"></image>
+  </view> -->
+
+  <!-- 结算列表 -->
+  <view class="settle-list" wx:if="{{settleResult}}">
+    <view wx:for="{{settleResult}}" wx:key="index" class="item">
+      <text>{{item.fromName}} → {{item.toName}} ：{{item.amount}} 元</text>
+    </view>
+  </view>
+  <!-- 转账记录列表 (微信聊天风格) -->
+  <scroll-view scroll-y class="record-wrapper">
+    <view class="record-list">
+      <block wx:for="{{recordList}}" wx:key="_id">
+        <!-- 外层容器：控制整行靠左或靠右 -->
+        <view class="chat-row {{item.isSelf ? 'row-self' : 'row-other'}}">
+          
+          <!-- 头像：自己不显示头像，别人显示 -->
+          <image 
+            wx:if="{{!item.isSelf}}" 
+            class="chat-avatar" 
+            src="{{item.avatarUrl || '/images/avatar_01.png'}}"
+          ></image>
+
+          <!-- 气泡容器 -->
+          <view class="chat-bubble {{item.isSelf ? 'bubble-self' : 'bubble-other'}}">
+            
+            <!-- 昵称 (仅在群聊或非自己发送时显示) -->
+            <view wx:if="{{!item.isSelf}}" class="chat-nickname">
+              {{item.fromName}}
+            </view>
+
+            <!-- 转账内容 -->
+            <view class="chat-content">
+              <text wx:if="{{item.isSelf}}">你向 </text>
+              <text wx:else>{{item.fromName}} 向 </text>
+              <text class="target-name">{{item.isSelf ? item.targetNickname : '你'}}</text>
+              <text> 转账 </text>
+              <text class="amount negative"> ¥{{item.amount}}</text>
+            </view>
+
+            <!-- 时间 -->
+            <view class="chat-time">{{item.time}}</view>
+          </view>
+
+          <!-- 自己的头像 (放在右边) -->
+          <image 
+            wx:if="{{item.isSelf}}" 
+            class="chat-avatar" 
+            src="{{item.avatarUrl || '/images/avatar_01.png'}}"
+          ></image>
+        </view>
+      </block>
+    </view>
+  </scroll-view>
+  <!-- 底部操作区 -->
+  <view class="bottom-bar">
+    <view class="btn settle" bindtap="onSettleTap">
+      <image src="/images/settle.png" class="icon"></image>
+      <text>结算</text>
+    </view>
+  </view>
+  <view class="bottom-bar" wx:if="{{settleResult}}">
+    <view class="btn settle" bindtap="onBackTap">
+      <image src="/images/settle.png" class="icon"></image>
+      <text>返回</text>
+    </view>
+  </view>
+</view>
+
+<view class="qr-modal" wx:if="{{qrUrl}}">
+  <!-- 关闭按钮 -->
+  <view class="close-btn" bindtap="closeQR">×</view>
+  <view class="qr-box" catchtap="stop">
+    <image class="qr" src="{{qrUrl}}" mode="aspectFit"/>
+    <button class="share-btn" open-type="share">
+      分享给好友
+    </button>
+  </view>
+</view>
+<amount-input visible="{{showAmountDialog}}" bind:confirm="onAmountConfirm" bind:cancel="() => setData({ showAmountDialog: false })"></amount-input>
+
+<canvas id="effectCanvas" type="2d" wx:if="{{effect.show}}" style="width: 800rpx; height: 600rpx; position: fixed;left: 50%;top: 40%;transform: translate(-50%, -50%);z-index: 999;pointer-events: none;"></canvas>

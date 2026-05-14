@@ -1,0 +1,174 @@
+.container {
+  padding: 20rpx;
+  background-color: #f8f8f8;
+  min-height: 100vh;
+}
+
+/* 用户信息卡片 */
+.user-card {
+  display: flex;
+  width: 90%;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #e74c3c;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  color: white;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+}
+
+.avatar {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  margin-right: 20rpx;
+  background-color: #fff;
+}
+
+.user-detail {
+  display: flex;
+  flex-direction: column;
+}
+
+.nickname {
+  font-size: 36rpx;
+  font-weight: bold;
+  margin-bottom: 10rpx;
+}
+
+.uid {
+  font-size: 28rpx;
+  opacity: 0.8;
+}
+
+.edit-btn {
+  width: 180rpx !important;
+  background-color: #ffd700;
+  color: #333;
+  border-radius: 30rpx;
+  font-size: 28rpx;
+  padding: 10rpx 30rpx;
+  border: none;
+}
+
+/* 统计信息 */
+.stats-container {
+  display: flex;
+  width: 80%;
+  justify-content: space-around;
+  background-color: #e74c3c;
+  border-radius: 20rpx;
+  padding: 30rpx 0;
+  color: white;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-num {
+  font-size: 48rpx;
+  font-weight: bold;
+  margin-bottom: 10rpx;
+}
+
+.stat-label {
+  font-size: 32rpx;
+}
+
+/* 客服和历史记录 */
+.action-links {
+  width: 80%;
+  display: flex;
+  justify-content: space-between;
+  padding: 20rpx 30rpx;
+  /* background-color: #e74c3c; */
+  border-radius: 20rpx;
+  color: white;
+}
+
+.link-item {
+  background-color: #e74c3c;
+  justify-content: space-between;
+  padding: 20rpx 30rpx;
+  /* margin-right: 20rpx; */
+  /* background-color: #e74c3c; */
+  border-radius: 20rpx;
+  /* margin-bottom: 20rpx; */
+  width: 35%;
+  display: flex;
+  align-items: center;
+  font-size: 28rpx;
+}
+
+.icon {
+  width: 32rpx;
+  height: 32rpx;
+  margin-right: 10rpx;
+}
+
+.action-links .link-item:nth-child(2) {
+  flex-direction: row-reverse;
+}
+
+.action-links .link-item:nth-child(2) .icon {
+  margin-right: 0;
+  margin-left: 10rpx;
+}
+
+/* 主要功能按钮 */
+.main-buttons {
+  display: flex;
+  width: 90%;
+  justify-content: space-between;
+}
+
+.action-btn {
+  flex: 1;
+  margin: 0 10rpx;
+  background-color: #e74c3c;
+  color: white;
+  border-radius: 10rpx;
+  font-size: 32rpx;
+  padding: 20rpx 0;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 30% !important;
+}
+
+.create-room {
+  margin-left: 10;
+  width: 150rpx !important;
+}
+
+.join-room {
+  margin-right: 100 !important;
+  width: 150rpx !important;
+}
+
+/* 评价提示 */
+.feedback-tip {
+  display: flex;
+  justify-content: space-between;
+  padding: 20rpx 0;
+  color: #666;
+  font-size: 28rpx;
+}
+
+.help-link {
+  color: #3498db;
+}
+
+/* 广告 */
+ad {
+  margin-top: 20rpx;
+}

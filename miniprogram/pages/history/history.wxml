@@ -1,0 +1,38 @@
+<view class="container">
+  <view class="title">📜 我的战绩</view>
+
+  <view class="list">
+    <view
+      wx:for="{{list}}"
+      wx:key="_id"
+      class="card"
+      bindtap="goDetail"
+      data-id="{{item._id}}"
+    >
+      <view class="card-header">
+        <text class="room-id">房间 #{{item.shortId}}</text>
+        <text class="time">{{item.settleTime}}</text>
+      </view>
+
+      <view class="card-body">
+        <view
+          wx:for="{{item.members}}"
+          wx:key="openid"
+          class="member"
+        >
+          <image class="avatar" src="{{item.avatarUrl}}" mode="aspectFill" />
+          <text class="name">{{item.nickName}}</text>
+          <text
+            class="score {{item.score > 0 ? '赢' : item.score < 0 ? '输' : ''}}"
+          >
+            {{item.score > 0 ? '+' : ''}}{{item.score}}
+          </text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{list.length === 0}}" class="empty">
+    暂无历史战绩
+  </view>
+</view>

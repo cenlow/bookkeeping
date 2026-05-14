@@ -1,0 +1,30 @@
+<view class="mask" wx:if="{{visible}}">
+  <view class="dialog">
+    <view class="title">{{title}}</view>
+
+    <input
+      class="input"
+      type="digit"
+      placeholder="0.00"
+      value="{{value}}"
+      bindinput="onInput"
+    />
+
+    <view class="quick">
+      <view
+        wx:for="{{quickAmounts}}"
+        wx:key="item"
+        class="quick-btn"
+        bindtap="onQuick"
+        data-amount="{{item}}"
+      >
+        ¥{{item}}
+      </view>
+    </view>
+
+    <view class="btns">
+      <view class="btn cancel" bindtap="cancel">取消</view>
+      <view class="btn confirm" bindtap="confirm">确定</view>
+    </view>
+  </view>
+</view>
