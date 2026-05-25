@@ -1,6 +1,7 @@
 const app = getApp()
 const db = wx.cloud.database()
 import lottie from 'lottie-miniprogram'
+import { Remark } from '../../utils/user'
 import { INTERACTION_TYPES } from '../../utils/interactionConfig'
 const ANI_MAP = {
   fuda: require('../../assets/lottie/fuda'),
@@ -130,23 +131,16 @@ Page({
         const roomData = snapshot.docs[0];
         this.setData({
           currentRoom: roomData,
-          userList: roomData.members, // 用户列表
-          teaMoney: roomData.teaMoney || 0, // 茶水间金额
-          settleResult: roomData.settleResult,
-          recordList: this.sortRecordList(roomData.records) || [] // 转账记录
-        })
+          teaMoney: roomData.teaMoney || 0 // 茶水间金额
+        });
+        this.reloadSettleResult(roomData.settleResult);
+        this.sortRecordList(roomData.records);// 转账记录
+        this.reloadUserList(roomData.members); // 用户列表
         // 自己排在第一个
         this.sortUserList();
         if(roomData.toTransfer){
           if(roomData.toTransfer.to === this.data.myOpenid){
             this.speckText("收到一笔记账，数额为"+roomData.toTransfer.amount);
-            db.collection('rooms').doc(roomId).update({
-              data: {
-                toTransfer: db.command.set({})
-              },
-              success: () => {
-              }
-            });
           }
         }
         // ✅ 找出最新互动
@@ -163,12 +157,35 @@ Page({
         }
       },
       onError: err => {
-        // wx.showToast({ title: '监听房间失败', icon: 'none' })
+        wx.showToast({ title: '监听房间失败', icon: 'none' })
         wx.navigateTo({
           url: `/pages/index/index`
         })
       }
     })
+  },
+  reloadSettleResult(setl){
+    if(setl){
+      const settleResult = setl.map(u => ({
+        ...u,
+        fromName: Remark.get(u.from) || u.fromName,
+        toName: Remark.get(u.to) || u.toName,
+      }))
+      this.setData({
+        settleResult
+      })
+    }
+  },
+  reloadUserList(user){
+    if(user){
+      const userList = user.map(u => ({
+        ...u,
+        remark: Remark.get(u.openid)
+      }))
+      this.setData({
+        userList
+      })
+    }
   },
   speckText(msg){
     wx.cloud.callFunction({
@@ -185,7 +202,7 @@ Page({
       fail: console.error
     });
   },
-  playAudio(base64Audio) {
+  playAudio(base64Audio) {debugger
     const fs = wx.getFileSystemManager();
     // 文件名
     const fileName = `tts_${Date.now()}.mp3`;
@@ -206,6 +223,7 @@ Page({
         });
         audioCtx.onError((err) => {
           console.error("播放失败", err);
+          audioCtx=null;
         });
         audioCtx.onEnded(() => {
           console.log('✅ 播放结束')
@@ -217,22 +235,29 @@ Page({
     });
   },
   sortRecordList(recordList){
+    if(recordList){
       const r = recordList
         .map(r => ({
           ...r,
+          fromName: Remark.get(r.from) || r.fromName,
+          targetNickname: Remark.get(r.to) || r.targetNickname,
           isSelf: r.from === this.data.myOpenid,
+          isReceptSelf: r.to === this.data.myOpenid
         }))
-      return r;
+        this.setData({ recordList:r })
+    }
   },
   // 排序：自己在前，其他人按加入顺序
   sortUserList() {
     const { userList, myOpenid } = this.data
-    userList.sort((a, b) => {
-      if (a.openid === myOpenid) return -1
-      if (b.openid === myOpenid) return 1
-      return a.joinTime - b.joinTime // 按加入时间升序
-    })
-    this.setData({ userList })
+    if(userList){
+      userList.sort((a, b) => {
+        if (a.openid === myOpenid) return -1
+        if (b.openid === myOpenid) return 1
+        return a.joinTime - b.joinTime // 按加入时间升序
+      })
+      this.setData({ userList })
+    }
   },
 
   // 点击用户头像：转账（或给自己记账）
@@ -311,19 +336,12 @@ Page({
 
   // 更新用户备注（仅自己可见，存到本地或云端）
   updateRemark(openid, remark) {
-    const { roomId, userList } = this.data
-    // 方案1：存到本地（仅自己可见）
-    wx.setStorageSync(`remark_${roomId}_${openid}`, remark)
-
-    // 方案2：存到云端（需要修改 rooms 结构，这里简化为本地）
-    const newMembers = userList.map(user => {
-      if (user.openid === openid) {
-        return { ...user, remark }
-      }
-      return user
-    })
-    this.setData({ userList: newMembers })
+    const {  userList,recordList } = this.data
+    // wx.setStorageSync(`remark_${roomId}_${openid}`, remark)
+    Remark.set(openid, remark)
     wx.showToast({ title: '备注成功', icon: 'success' })
+    this.reloadUserList(userList);
+    this.sortRecordList(recordList);
   },
 
   // 显示转账弹窗

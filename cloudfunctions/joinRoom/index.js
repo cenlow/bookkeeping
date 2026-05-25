@@ -55,6 +55,7 @@ if (room.members.length >= room.maxMembers) {
     data: {
       members: db.command.push({
         openid: OPENID,
+        joinTime: Date.now(),
         nickName: userInfo?.nickName || '游客',
         avatarUrl: userInfo?.avatarUrl || '',
         score: 0

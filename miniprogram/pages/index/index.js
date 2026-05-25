@@ -12,21 +12,22 @@ Page({
   onLoad: function() {
     // 检查登录状态
     this.setData({
-      userInfo: app.globalData.userInfo || {},
-      isLogin: app.globalData.isLogin || false
+      userInfo: app.globalData.userInfo,
+      isLogin: app.globalData.isLogin
     });
     
     // 加载用户统计数据
     if (this.data.isLogin) {
       this.loadUserStats();
+      this.getCurrentRoom();
     }
   },
   
   onShow: function() {
     // 页面显示时刷新数据
     this.setData({
-      userInfo: app.globalData.userInfo || {},
-      isLogin: app.globalData.isLogin || false
+      userInfo: app.globalData.userInfo,
+      isLogin: app.globalData.isLogin
     });
     if (this.data.isLogin) {
       console.log("on show")
@@ -110,7 +111,7 @@ Page({
         
         // 加载用户统计数据
         this.loadUserStats();
-        
+        this.getCurrentRoom();
         wx.hideLoading();
       },
       fail: err => {

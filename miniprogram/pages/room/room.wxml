@@ -1,33 +1,34 @@
 <!-- 房间页面 -->
 <view class="container">
   <!-- 用户列表（自己在前，其他人按加入顺序） -->
-  <view class="user-list">
-    <block wx:for="{{userList}}" wx:key="_id">
-      <view 
-        class="user-item {{item.openid === myOpenid ? 'self' : ''}}" 
-        bindtap="onUserTap" 
-        bindlongpress="onUserLongPress" 
-        data-nickname="{{item.nickName}}"
-        data-openid="{{item.openid}}"
-      >
-        <image src="{{item.avatarUrl || '/images/avatar_01.png'}}" class="avatar"></image>
-        <view class="nickname">{{item.remark || item.nickName}}</view>
-        <view class="score {{item.score >= 0 ? 'positive' : 'negative'}}">{{item.score}}</view>
+  <scroll-view scroll-x class="user-list-scroll">
+    <view class="user-list">
+      <block wx:for="{{userList}}" wx:key="_id">
+        <view 
+          class="user-item {{item.openid === myOpenid ? 'self' : ''}}" 
+          bindtap="onUserTap" 
+          bindlongpress="onUserLongPress" 
+          data-nickname="{{item.nickName}}"
+          data-openid="{{item.openid}}"
+        >
+          <image src="{{item.avatarUrl || '/images/avatar_01.png'}}" class="avatar"></image>
+          <view class="nickname">{{item.remark || item.nickName}}</view>
+          <view class="score {{item.score >= 0 ? 'positive' : 'negative'}}">{{item.score}}</view>
+        </view>
+      </block>
+      <!-- 邀请按钮 -->
+      <view class="user-item invite" bindtap="inviteUser">
+        <image class="avatar" src="/images/user.png"></image>
+        <view class="nickname">邀请</view>
       </view>
-    </block>
-    <!-- 邀请按钮 -->
-    <view class="user-item invite" bindtap="inviteUser">
-      <image class="avatar" src="/images/user.png"></image>
-      <view class="nickname">邀请</view>
+      <!-- 茶水间按钮 -->
+      <view class="user-item tea" bindtap="openTeaRoom">
+        <image src="/images/tea.png" class="avatar"></image>
+        <view class="nickname">茶水</view>
+        <view class="tea-money">¥{{teaMoney}}</view>
+      </view>
     </view>
-    <!-- 茶水间按钮 -->
-    <view class="user-item tea" bindtap="openTeaRoom">
-      <image src="/images/tea.png" class="avatar"></image>
-      <view class="nickname">茶水</view>
-      <view class="tea-money">¥{{teaMoney}}</view>
-    </view>
-  </view>
-
+  </scroll-view>
   <!-- 提示文字 -->
   <view class="tip">点击头像向用户进行记账,长按头像更多功能</view>
 
@@ -58,17 +59,11 @@
 
           <!-- 气泡容器 -->
           <view class="chat-bubble {{item.isSelf ? 'bubble-self' : 'bubble-other'}}">
-            
-            <!-- 昵称 (仅在群聊或非自己发送时显示) -->
-            <view wx:if="{{!item.isSelf}}" class="chat-nickname">
-              {{item.fromName}}
-            </view>
-
             <!-- 转账内容 -->
             <view class="chat-content">
               <text wx:if="{{item.isSelf}}">你向 </text>
-              <text wx:else>{{item.fromName}} 向 </text>
-              <text class="target-name">{{item.isSelf ? item.targetNickname : '你'}}</text>
+              <text wx:else>{{item.fromName}}向</text>
+              <text class="target-name">{{item.isReceptSelf ?'你':item.targetNickname }}</text>
               <text> 转账 </text>
               <text class="amount negative"> ¥{{item.amount}}</text>
             </view>

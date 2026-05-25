@@ -35,21 +35,26 @@ page {
   font-size: 36rpx;
   font-weight: bold;
 }
-
+/* 外层滚动容器 */
+.user-list-scroll {
+  width: 100%;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
 /* 用户列表 */
 .user-list {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  margin-bottom: 20rpx;
+  flex-wrap: nowrap;   /* ✅ 禁止换行 */
+  align-items: flex-start;
 }
 
 .user-item {
+  flex: 0 0 auto;      /* ✅ 不伸缩 */
+  width: 120rpx;
+  margin: 6rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 120rpx;
-  margin: 10rpx;
   position: relative;
 }
 
@@ -190,8 +195,8 @@ page {
 
 .target-name {
   font-weight: bold;
-  padding-left: 10rpx;
-  padding-right: 10rpx;
+  padding-left: 5rpx;
+  padding-right: 5rpx;
 }
 
 /* 金额颜色 */
