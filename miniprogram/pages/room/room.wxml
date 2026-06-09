@@ -83,7 +83,7 @@
     </view>
   </scroll-view>
   <!-- 底部操作区 -->
-  <view class="bottom-bar">
+  <view class="bottom-bar" wx:if="{{isOwner}}">
     <view class="btn settle" bindtap="onSettleTap">
       <image src="/images/settle.png" class="icon"></image>
       <text>结算</text>

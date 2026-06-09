@@ -11,13 +11,11 @@ Page({
   
   onLoad: function() {
     // 检查登录状态
-    this.setData({
-      userInfo: app.globalData.userInfo,
-      isLogin: app.globalData.isLogin
-    });
-    
-    // 加载用户统计数据
-    if (this.data.isLogin) {
+    if(app.globalData.isLogin){
+      this.setData({
+        userInfo: app.globalData.userInfo,
+        isLogin: app.globalData.isLogin
+      });
       this.loadUserStats();
       this.getCurrentRoom();
     }
@@ -25,16 +23,27 @@ Page({
   
   onShow: function() {
     // 页面显示时刷新数据
-    this.setData({
-      userInfo: app.globalData.userInfo,
-      isLogin: app.globalData.isLogin
-    });
-    if (this.data.isLogin) {
-      console.log("on show")
+    if(app.globalData.isLogin){
+      this.setData({
+        userInfo: app.globalData.userInfo,
+        isLogin: app.globalData.isLogin
+      });
       this.loadUserStats();
       this.getCurrentRoom();
+    }else{
+      const us= wx.getStorageSync('userInfo');
+      const isLo=  wx.setStorageSync('isLogin');
+      const uOp=  wx.setStorageSync("openid");
+      if(us&&isLo){
+        this.setData({
+          userInfo: us,
+          isLogin: isLo
+        });
+        app.globalData.userInfo = us;
+        app.globalData.isLogin = isLo;
+        app.globalData.openid = uOp;
+      }
     }
-  
     if (app.globalData.inviteRoomId) {
       wx.navigateTo({
         url: `/pages/room/room?roomId=${app.globalData.inviteRoomId}`

@@ -54,6 +54,7 @@ exports.main = async (event, context) => {
           teaMoney: 0,
           records: [],
           status: 'playing',
+          lastActiveTime: new Date(),
           createTime: new Date()
         }
       })

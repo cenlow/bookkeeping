@@ -19,6 +19,7 @@ Page({
     recordList: [],    // 转账记录
     teaMoney: 0,       // 茶水间金额
     qrUrl:'',
+    isOwner:false,
     effect: {
       show: false
     },
@@ -45,6 +46,21 @@ Page({
       this.setData({ roomId:roomId,shortId:shortId })
       this.initLogin()
     }
+  },
+  onShow(){
+    // 进入房间页 → 保持屏幕常亮
+    wx.setKeepScreenOn({
+      keepScreenOn: true,
+      fail() {
+        wx.setKeepScreenOn({ keepScreenOn: true })
+      }
+    })
+  },
+  onHide() {
+    wx.setKeepScreenOn({ keepScreenOn: false })
+  },
+  onUnload() {
+    wx.setKeepScreenOn({ keepScreenOn: false })
   },
   parseQuery(str = '') {
     const obj = {}
@@ -131,6 +147,7 @@ Page({
         const roomData = snapshot.docs[0];
         this.setData({
           currentRoom: roomData,
+          isOwner: roomData.creator==this.data.myOpenid,
           teaMoney: roomData.teaMoney || 0 // 茶水间金额
         });
         this.reloadSettleResult(roomData.settleResult);
@@ -201,8 +218,8 @@ Page({
       },
       fail: console.error
     });
-  },
-  playAudio(base64Audio) {debugger
+  },audioCtx: null,
+  playAudio(base64Audio) {
     const fs = wx.getFileSystemManager();
     // 文件名
     const fileName = `tts_${Date.now()}.mp3`;
@@ -215,20 +232,20 @@ Page({
       data: buffer,
       encoding: "binary",
       success() {
-        let audioCtx = wx.createInnerAudioContext();
-        audioCtx.src = filePath;
-        audioCtx.autoplay = true;
-        audioCtx.onPlay(() => {
+        if(this.audioCtx==null){
+          this.audioCtx = wx.createInnerAudioContext();
+        }
+        this.audioCtx.src = filePath;
+        this.audioCtx.autoplay = true;
+        this.audioCtx.onPlay(() => {
           console.log("▶️ 开始播放");
         });
-        audioCtx.onError((err) => {
+        this.audioCtx.onError((err) => {
           console.error("播放失败", err);
-          audioCtx=null;
         });
-        audioCtx.onEnded(() => {
+        this.audioCtx.onEnded(() => {
           console.log('✅ 播放结束')
           audioCtx.destroy();
-          audioCtx=null;
         });
       },
       fail: console.error,
@@ -332,6 +349,25 @@ Page({
         console.error(err)
       }
     })
+    wx.cloud.callFunction({
+      name: 'updateNickName',
+      data: {
+        nickName: newNickname
+      },
+      success: res => {
+        wx.hideLoading()
+        app.globalData.userInfo.nickName = newNickname;
+        this.setData({
+          userInfo: app.globalData.userInfo
+        });
+      },
+      fail: err => {
+        wx.hideLoading()
+        console.error(err)
+        wx.showToast({ title: '修改名称失败', icon: 'none' })
+      }
+    })
+
   },
 
   // 更新用户备注（仅自己可见，存到本地或云端）
@@ -377,57 +413,83 @@ Page({
     const targetUser = userList.find(u => u.openid === targetOpenid)
     const myUser = userList.find(u => u.openid === myOpenid)
 
-    // 计算新的分数
-    const newMyScore = myUser.score - amount
-    const newTargetScore = targetUser.score + amount
+    wx.showLoading({ title: '转账中...' })
 
-    // 更新成员分数
-    const newMembers = userList.map(user => {
-      if (user.openid === myOpenid) {
-        return { ...user, score: newMyScore }
-      }
-      if (user.openid === targetOpenid) {
-        return { ...user, score: newTargetScore }
-      }
-      return user
-    })
-
-    // 添加转账记录
-    const newRecord = {
-      _id: Date.now().toString(),
-      type: 'transfer',
-      from: myOpenid,
-      to: targetOpenid,
-      fromName: myUser.nickName,
-      amount: amount, // 自己支出（负），对方收入（正）
-      targetNickname: targetUser.nickName,
-      avatarUrl: myUser.avatarUrl,
-      time: this.formatTime(new Date())
-    }
-
-    // 更新房间数据
-    db.collection('rooms').doc(roomId).update({
+    wx.cloud.callFunction({
+      name: 'doTransfer',
       data: {
-        members: newMembers,
-        records: [newRecord,...this.data.recordList],
-        toTransfer: newRecord
+        roomId,
+        from: myOpenid,
+        fromName: myUser.nickName,
+        to: targetOpenid,
+        targetNickname: targetUser.nickName,
+        amount
       },
-      success: () => {
-        wx.showToast({ title: '转账成功', icon: 'success' })
-        this.setData({
-          userList: newMembers,
-        });
-        const recordList = this.data.recordList.map(r => ({
-          ...r,
-          isSelf: r.from === myOpenid
-        }));
-        this.setData({ recordList })
+      success: res => {
+        wx.hideLoading()
+        if (res.result.code === 0) {
+          wx.showToast({ title: '转账成功', icon: 'success' })
+        } else {
+          wx.showToast({ title: res.result.msg || '转账失败', icon: 'none' })
+        }
       },
-      fail: err => {
-        wx.showToast({ title: '转账失败', icon: 'none' })
-        console.error(err)
+      fail: () => {
+        wx.hideLoading()
+        wx.showToast({ title: '网络错误', icon: 'none' })
       }
     })
+
+    // // 计算新的分数
+    // const newMyScore = myUser.score - amount
+    // const newTargetScore = targetUser.score + amount
+
+    // // 更新成员分数
+    // const newMembers = userList.map(user => {
+    //   if (user.openid === myOpenid) {
+    //     return { ...user, score: newMyScore }
+    //   }
+    //   if (user.openid === targetOpenid) {
+    //     return { ...user, score: newTargetScore }
+    //   }
+    //   return user
+    // })
+
+    // // 添加转账记录
+    // const newRecord = {
+    //   _id: Date.now().toString(),
+    //   type: 'transfer',
+    //   from: myOpenid,
+    //   to: targetOpenid,
+    //   fromName: myUser.nickName,
+    //   amount: amount, // 自己支出（负），对方收入（正）
+    //   targetNickname: targetUser.nickName,
+    //   avatarUrl: myUser.avatarUrl,
+    //   time: this.formatTime(new Date())
+    // }
+
+    // // 更新房间数据
+    // db.collection('rooms').doc(roomId).update({
+    //   data: {
+    //     members: newMembers,
+    //     records: [newRecord,...this.data.recordList],
+    //     toTransfer: newRecord
+    //   },
+    //   success: () => {
+    //     wx.showToast({ title: '转账成功', icon: 'success' })
+    //     this.setData({
+    //       userList: newMembers,
+    //     });
+    //     const recordList = this.data.recordList.map(r => ({
+    //       ...r,
+    //       isSelf: r.from === myOpenid
+    //     }));
+    //     this.setData({ recordList })
+    //   },
+    //   fail: err => {
+    //     wx.showToast({ title: '转账失败', icon: 'none' })
+    //     console.error(err)
+    //   }
+    // })
   },
 
   // 邀请用户
@@ -645,6 +707,11 @@ Page({
   onUnload() {
     if (this.watch) {
       this.watch.close()
+    }
+    if (this.audioCtx) {
+      this.audioCtx.stop()
+      this.audioCtx.destroy()
+      this.audioCtx = null
     }
   },
   sendInteraction(toOpenid, toName, type) {
