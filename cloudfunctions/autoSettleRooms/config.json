@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "openapi": [
+      "wxacode.get"
+    ]
+  },
+  "triggers": [
+    {
+      "name": "autoSettleTrigger",
+      "type": "timer",
+      "config": "0 0 */1 * * * *"
+    }
+  ]
+}
